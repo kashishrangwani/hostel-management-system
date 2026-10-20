@@ -1,0 +1,150 @@
+  <main class="main-content" style="padding-top: 0;">
+    <section class="hero" id="heroSection">
+      <div class="container hero-grid">
+        <div class="hero-content">
+          <div class="section-tag">Student Residence Portal</div>
+          <h1>Comfortable Living & <span>Smart Hostel</span> Management</h1>
+          <p>Welcome to the official student hostel portal. Seamlessly manage room allotments, track daily nutritious mess menus, file instant maintenance requests, and submit gate passes online.</p>
+          <div class="hero-actions">
+            <?php if (isLoggedIn() && !isAdmin()): ?>
+              <a href="dashboard.php" class="btn btn-primary">Go to My Dashboard</a>
+            <?php else: ?>
+              <a href="login.php" class="btn btn-primary">Student Portal Login</a>
+              <a href="register.php" class="btn btn-outline">New Registration</a>
+            <?php endif; ?>
+          </div>
+        </div>
+
+        <div class="hero-card" id="heroHighlightsCard">
+          <h3>Quick Resident Notice</h3>
+          <div class="hero-quick-list">
+            <div class="hero-quick-item">
+              <div class="icon-circle">&#128276;</div>
+              <div><strong>Hostel Gate Timings:</strong> 6:00 AM – 9:30 PM everyday.</div>
+            </div>
+            <div class="hero-quick-item">
+              <div class="icon-circle">&#127860;</div>
+              <div><strong>Mess Timings:</strong> Breakfast 7:30 AM | Dinner 7:30 PM.</div>
+            </div>
+            <div class="hero-quick-item">
+              <div class="icon-circle">&#128736;</div>
+              <div><strong>Quick Support:</strong> 24/7 on-campus electrical & plumbing help.</div>
+            </div>
+            <div class="hero-quick-item">
+              <div class="icon-circle">&#128225;</div>
+              <div><strong>High-Speed Wi-Fi:</strong> High-bandwidth optical fiber connectivity.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="features-section" id="featuresSection">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Why Choose Us</span>
+          <h2 class="section-title">Hostel Facilities & Services</h2>
+          <p class="section-subtitle">Everything you need for a comfortable, secure, and focused academic life away from home.</p>
+        </div>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">&#128719;</div>
+            <h3>Spacious Rooms</h3>
+            <p>Well-ventilated single, double, and triple sharing rooms equipped with ergonomic study desks, wardrobes, and comfortable bedding.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">&#127979;</div>
+            <h3>Modern Facilities</h3>
+            <p>24/7 power backup, high-speed Wi-Fi, RO purified drinking water stations, reading rooms, and indoor recreational areas.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">&#127829;</div>
+            <h3>Hygienic Mess</h3>
+            <p>Four balanced, nutritious meals prepared daily by certified chefs following strict hygiene and dietary quality standards.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">&#128737;</div>
+            <h3>24/7 Security</h3>
+            <p>Round-the-clock security personnel, comprehensive CCTV surveillance, biometric entry logs, and dedicated resident wardens.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="info-section" id="contactSection">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Reach Out</span>
+          <h2 class="section-title">Contact & Helpdesk</h2>
+          <p class="section-subtitle">Have questions or need assistance? Our hostel administration office is always here to assist you.</p>
+        </div>
+
+        <div class="info-grid">
+          <div class="info-card">
+            <h4><span>&#128205;</span> Campus Location</h4>
+            <p><strong>Main Hostel Campus:</strong> Block B & C</p>
+            <p>Knowledge City, University Road</p>
+            <p>New Delhi - 110001, India</p>
+          </div>
+          <div class="info-card">
+            <h4><span>&#128222;</span> Phone & Emergency</h4>
+            <p><strong>Chief Warden Office:</strong> +91 98765 43210</p>
+            <p><strong>Hostel Helpdesk:</strong> +91 11 2345 6789</p>
+            <p><strong>Emergency Medical:</strong> +91 98111 22334</p>
+          </div>
+          <div class="info-card">
+            <h4><span>&#9993;</span> Email & Hours</h4>
+            <p><strong>General Support:</strong> hostelhelp@campus.edu</p>
+            <p><strong>Office Hours:</strong> 9:00 AM – 6:00 PM (Mon-Sat)</p>
+            <p><strong>Gate Closure:</strong> 9:30 PM sharp</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer" id="mainFooter">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <div class="logo" style="color: #ffffff; margin-bottom: 12px;">
+            <div class="logo-badge">H</div>
+            <div class="logo-text">Hostel<span style="color: var(--primary-color);">Hub</span></div>
+          </div>
+          <p>Providing safe, hygienic, and student-friendly residential living environments with smart digital management services.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Quick Links</h4>
+          <div class="footer-links">
+            <a href="index.php">Home</a>
+            <a href="login.php">Student Login</a>
+            <a href="register.php">Student Registration</a>
+            <a href="dashboard.php">Resident Dashboard</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Services</h4>
+          <div class="footer-links">
+            <a href="forms.php">Register Complaint</a>
+            <a href="forms.php">Apply for Leave</a>
+            <a href="table.php">Complaint Status</a>
+            <a href="dashboard.php">Mess Schedule</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Hostel Helpline</h4>
+          <p>Student Affairs Building</p>
+          <p>Helpline: +91 98765 43210</p>
+          <p>Email: hostel@university.ac.in</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; <?php echo date("Y"); ?> Hostel Management System. All Rights Reserved. Designed for MCA Project.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/script.js"></script>
+</body>
+</html>

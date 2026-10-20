@@ -1,0 +1,127 @@
+  <main class="main-content">
+    <div class="container">
+
+      <div class="dashboard-header">
+        <div class="welcome-box">
+          <h1>Welcome, <span style="color: var(--primary-color);"><?php echo h($_SESSION['name']); ?></span>!</h1>
+          <p>Roll No: <strong><?php echo h($student['roll_no']); ?></strong> | Course: <?php echo h($student['course']); ?></p>
+        </div>
+        <div class="dashboard-actions">
+          <a href="forms.php" class="btn btn-outline btn-sm">&#9997; New Request</a>
+          <a href="logout.php" class="btn btn-danger btn-sm">&#128682; Logout</a>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+
+        <!-- Room Allocation Card -->
+        <div class="dash-card">
+          <div class="dash-card-header">
+            <div class="dash-card-title"><span class="badge-icon">&#128719;</span> Room Allocation</div>
+            <?php if ($student['room_number']): ?>
+              <span class="badge badge-resolved">Active Allotment</span>
+            <?php else: ?>
+              <span class="badge badge-pending">Not Allocated</span>
+            <?php endif; ?>
+          </div>
+
+          <?php if ($student['room_number']): ?>
+            <div class="detail-list">
+              <div class="detail-item">
+                <span class="detail-label">Room Number:</span>
+                <span class="detail-value" style="color: var(--primary-color); font-size: 16px;"><?php echo h($student['room_number']); ?></span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Hostel Block:</span>
+                <span class="detail-value">Block <?php echo h($student['block']); ?>, Floor <?php echo h($student['floor']); ?></span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Allocated Bed:</span>
+                <span class="detail-value"><?php echo h($student['bed_label']); ?></span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Roommate<?php echo count($roommates) === 1 ? '' : 's'; ?>:</span>
+                <span class="detail-value">
+                  <?php echo $roommates ? h(implode(', ', array_column($roommates, 'name'))) : 'None yet'; ?>
+                </span>
+              </div>
+            </div>
+          <?php else: ?>
+            <p style="font-size: 13px; color: var(--text-muted);">You haven't been allocated a room yet. Please contact the hostel admin office.</p>
+          <?php endif; ?>
+        </div>
+
+        <!-- Mess Status Card (static schedule - not part of the DB-backed modules) -->
+        <div class="dash-card">
+          <div class="dash-card-header">
+            <div class="dash-card-title"><span class="badge-icon">&#127829;</span> Mess Status & Menu</div>
+            <span class="badge badge-resolved">Standard Schedule</span>
+          </div>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">
+            <strong>Today's Menu (Dining Hall):</strong>
+          </p>
+          <div class="mess-menu-grid">
+            <div class="mess-meal">
+              <div class="mess-meal-title">Breakfast (7:30 - 9:30 AM)</div>
+              <div class="mess-meal-desc">Aloo Paratha, Curd, Boiled Eggs / Sprouts, Tea & Coffee</div>
+            </div>
+            <div class="mess-meal">
+              <div class="mess-meal-title">Lunch (12:30 - 2:30 PM)</div>
+              <div class="mess-meal-desc">Paneer Butter Masala, Dal Tadka, Steamed Rice, Roti, Salad</div>
+            </div>
+            <div class="mess-meal">
+              <div class="mess-meal-title">Evening Snacks (5:00 - 6:00 PM)</div>
+              <div class="mess-meal-desc">Vegetable Samosa, Green Chutney, Hot Masala Tea</div>
+            </div>
+            <div class="mess-meal">
+              <div class="mess-meal-title">Dinner (7:30 - 9:30 PM)</div>
+              <div class="mess-meal-desc">Mix Veg Korma, Rajma, Jeera Rice, Chapati, Gulab Jamun</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notices Card -->
+        <div class="dash-card">
+          <div class="dash-card-header">
+            <div class="dash-card-title"><span class="badge-icon">&#128227;</span> Official Notices</div>
+            <span class="badge badge-pending"><?php echo count($notices); ?> Recent</span>
+          </div>
+          <div class="notice-list">
+            <?php if ($notices): ?>
+              <?php foreach ($notices as $n): ?>
+                <div class="notice-item">
+                  <span class="notice-date"><?php echo niceDate($n['publish_date']); ?></span>
+                  <div class="notice-text">
+                    <strong><?php echo h($n['title']); ?>:</strong> <?php echo h($n['description']); ?>
+                  </div>
+                </div>
+              <?php endforeach; ?>
+            <?php else: ?>
+              <p style="font-size: 13px; color: var(--text-muted);">No notices posted yet.</p>
+            <?php endif; ?>
+          </div>
+        </div>
+
+      </div>
+
+      <div style="margin-top: 20px;">
+        <h3 style="font-size: 18px; color: var(--text-main); margin-bottom: 14px;">Quick Resident Actions</h3>
+        <div class="quick-action-grid">
+          <a href="forms.php" class="quick-action-btn">
+            <div class="icon">&#9888;&#65039;</div>
+            <div>File Maintenance Complaint</div>
+          </a>
+          <a href="forms.php" class="quick-action-btn">
+            <div class="icon">&#128197;</div>
+            <div>Apply for Night Leave / Gate Pass</div>
+          </a>
+          <a href="table.php" class="quick-action-btn">
+            <div class="icon">&#128203;</div>
+            <div>View Complaint History</div>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+

@@ -1,0 +1,148 @@
+
+        <main class="main-content">
+
+            <header class="top-nav">
+                <div class="welcome-text">
+                    <h1>Fees Management</h1>
+                    <p>Track student payments, dues, and payment histories.</p>
+                </div>
+                <div class="user-profile">
+                    <div class="avatar-group">
+                        <div class="avatar"></div>
+                        <span class="profile-name"><?php echo h($_SESSION['name']); ?></span>
+                    </div>
+                </div>
+            </header>
+
+            <?php if ($message): ?>
+                <div class="card" style="padding: 12px 16px; margin-bottom: 16px; border-left: 4px solid #22c55e;"><?php echo h($message); ?></div>
+            <?php endif; ?>
+
+            <div class="stats-row">
+                <div class="stat-box">
+                    <div class="icon-wrap green"><i class="fa-solid fa-check-double"></i></div>
+                    <div class="stat-info"><p>Fully Paid</p><h4><?php echo $fullyPaid; ?></h4></div>
+                </div>
+                <div class="stat-box">
+                    <div class="icon-wrap orange"><i class="fa-solid fa-circle-half-stroke"></i></div>
+                    <div class="stat-info"><p>Partially Paid</p><h4><?php echo $partiallyPaid; ?></h4></div>
+                </div>
+                <div class="stat-box">
+                    <div class="icon-wrap red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <div class="stat-info"><p>Not Paid</p><h4><?php echo $notPaid; ?></h4></div>
+                </div>
+            </div>
+
+            <div class="card table-card">
+                <div class="card-header">
+                    <h3>Student Fee Records</h3>
+                    <select class="filter-dropdown" id="feeFilter">
+                        <option value="all" selected>All Records</option>
+                        <option value="paid">Fully Paid</option>
+                        <option value="pending">Partially Paid</option>
+                        <option value="overdue">Not Paid</option>
+                    </select>
+                </div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>Student</th><th>Room</th><th>Total Fee</th><th>Paid</th><th>Due</th><th>Status</th><th>Action</th></tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($fees as $f): ?>
+                                <?php
+                                $due = $f['total_fee'] - $f['paid'];
+                                if ($f['total_fee'] > 0 && $due <= 0) { $status = 'paid'; $label = 'Paid'; }
+                                elseif ($f['paid'] > 0 && $due > 0) { $status = 'pending'; $label = 'Pending'; }
+                                else { $status = 'overdue'; $label = $f['total_fee'] > 0 ? 'Overdue' : 'Not Set'; }
+                                ?>
+                                <tr data-filter="<?php echo $status; ?>">
+                                    <td><div class="user-cell"><div class="tiny-avatar"><?php echo h(strtoupper($f['name'][0])); ?></div><span><?php echo h($f['name']); ?></span></div></td>
+                                    <td><strong><?php echo h($f['room_number'] ?? '-'); ?></strong></td>
+                                    <td><?php echo money($f['total_fee']); ?></td>
+                                    <td><?php echo money($f['paid']); ?></td>
+                                    <td><?php echo money(max(0, $due)); ?></td>
+                                    <td><span class="status-badge <?php echo $status; ?>"><?php echo $label; ?></span></td>
+                                    <td>
+                                        <button class="view-btn open-modal-btn"
+                                            data-student-id="<?php echo $f['student_id']; ?>"
+                                            data-name="<?php echo h($f['name']); ?>"
+                                            data-room="<?php echo h($f['room_number'] ?? '-'); ?>"
+                                            data-total="<?php echo $f['total_fee']; ?>"
+                                            data-due="<?php echo max(0, $due); ?>">View History</button>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+
+    <!-- Payment History / Manage Modal -->
+    <div class="modal-overlay" id="paymentModal">
+        <div class="modal-box">
+            <button class="close-modal-btn"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-header"><h2>Payment History</h2></div>
+
+            <div class="modal-body">
+                <div class="student-details">
+                    <p><strong>Student:</strong> <span id="pm-name"></span></p>
+                    <p><strong>Room:</strong> <span id="pm-room"></span></p>
+                    <p><strong>Total Fee:</strong> <span id="pm-total"></span> &nbsp;|&nbsp; <strong>Pending:</strong> <span class="text-red" id="pm-due"></span></p>
+                </div>
+
+                <div class="history-table-container">
+                    <table class="history-table">
+                        <thead><tr><th>Date</th><th>Amount</th><th>Method</th><th>Transaction ID</th></tr></thead>
+                        <tbody id="pm-history-body"></tbody>
+                    </table>
+                </div>
+
+                <form id="setFeeForm" method="POST" style="margin-top: 16px; display: flex; gap: 8px; align-items: flex-end;">
+                    <input type="hidden" name="student_id" id="sf-student-id">
+                    <div class="form-group" style="margin: 0; flex: 1;">
+                        <label>Total Fee (₹)</label>
+                        <input type="number" step="0.01" name="total_fee" id="sf-total-fee" required>
+                    </div>
+                    <button type="submit" name="set_fee" class="publish-btn bg-blue" style="height: 38px;">Update Total</button>
+                </form>
+
+                <form id="addPaymentForm" method="POST" style="margin-top: 12px;">
+                    <input type="hidden" name="student_id" id="ap-student-id">
+                    <div class="form-row">
+                        <div class="form-group half"><label>Amount (₹)</label><input type="number" step="0.01" name="amount" required></div>
+                        <div class="form-group half">
+                            <label>Method</label>
+                            <select name="method" required>
+                                <option value="Cash">Cash</option>
+                                <option value="UPI">UPI</option>
+                                <option value="Bank Transfer">Bank Transfer</option>
+                                <option value="Card">Card</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group half"><label>Transaction ID</label><input type="text" name="transaction_id" placeholder="Optional"></div>
+                        <div class="form-group half"><label>Date</label><input type="date" name="paid_on" value="<?php echo date('Y-m-d'); ?>" required></div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="cancel-btn close-modal-btn-secondary">Close</button>
+                <button type="submit" form="addPaymentForm" name="add_payment" class="publish-btn">Record Payment</button>
+            </div>
+        </div>
+    </div>
+
+<?php include "includes/footer_admin.php"; ?>
+    <script>
+        // Full payment history for every student, grouped in JS by student id
+        // to populate the "View History" modal without extra page loads.
+        const allPayments = <?php echo json_encode($allPayments); ?>;
+    </script>
+    <script src="js/fees.js"></script>
+</body>
+</html>

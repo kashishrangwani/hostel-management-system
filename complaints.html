@@ -1,0 +1,167 @@
+
+        <main class="main-content">
+
+            <header class="top-nav">
+                <div class="welcome-text">
+                    <h1>Complaints Management</h1>
+                    <p>Receive, track, investigate, and resolve hostel issues.</p>
+                </div>
+                <div class="user-profile">
+                    <div class="avatar-group">
+                        <div class="avatar"></div>
+                        <span class="profile-name"><?php echo h($_SESSION['name']); ?></span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="top-layout-grid">
+                <div class="stats-column">
+                    <div class="stat-card">
+                        <div class="icon-wrap purple"><i class="fa-solid fa-layer-group"></i></div>
+                        <div class="stat-info"><p>Total Complaints</p><h4><?php echo $totalComplaints; ?></h4></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="icon-wrap blue"><i class="fa-solid fa-bell"></i></div>
+                        <div class="stat-info"><p>New</p><h4><?php echo $newCount; ?></h4></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="icon-wrap orange"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+                        <div class="stat-info"><p>In Progress</p><h4><?php echo $inProgressCount; ?></h4></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="icon-wrap green"><i class="fa-solid fa-circle-check"></i></div>
+                        <div class="stat-info"><p>Resolved</p><h4><?php echo $resolvedCount; ?></h4></div>
+                    </div>
+                </div>
+
+                <div class="card chart-card">
+                    <div class="card-header"><h3>Complaints by Category</h3></div>
+                    <div class="chart-container"><canvas id="categoryChart"></canvas></div>
+                </div>
+            </div>
+
+            <div class="card table-card">
+                <div class="card-header"><h3>Complaint Records</h3></div>
+
+                <div class="filter-bar">
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="complaintSearch" placeholder="Search Student, ID, Room...">
+                    </div>
+                    <select class="filter-dropdown" id="categoryFilter">
+                        <option value="all">All Categories</option>
+                        <option value="Maintenance">Maintenance</option>
+                        <option value="Water">Water</option>
+                        <option value="Electricity">Electricity</option>
+                        <option value="Cleanliness">Cleanliness</option>
+                        <option value="Internet">Wi-Fi/Internet</option>
+                    </select>
+                    <select class="filter-dropdown" id="statusFilter">
+                        <option value="all">All Statuses</option>
+                        <option value="new">New</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="resolved">Resolved</option>
+                        <option value="closed">Closed</option>
+                    </select>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="data-table" id="complaintTable">
+                        <thead><tr><th>Student</th><th>ID</th><th>Category</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
+                        <tbody>
+                            <?php foreach ($complaints as $c): ?>
+                                <tr data-category="<?php echo h($c['category']); ?>" data-status="<?php echo slug($c['status']); ?>">
+                                    <td><div class="user-cell"><div class="tiny-avatar"><?php echo h(strtoupper($c['name'][0])); ?></div><span><?php echo h($c['name']); ?></span></div></td>
+                                    <td><strong><?php echo h($c['roll_no']); ?></strong></td>
+                                    <td><?php echo h($c['category']); ?></td>
+                                    <td><?php echo niceDate($c['created_at']); ?></td>
+                                    <td><span class="status-badge <?php echo slug($c['status']); ?>"><?php echo h($c['status']); ?></span></td>
+                                    <td>
+                                        <button class="view-btn open-modal-btn"
+                                            data-id="<?php echo $c['id']; ?>"
+                                            data-name="<?php echo h($c['name']); ?>"
+                                            data-roll="<?php echo h($c['roll_no']); ?>"
+                                            data-room="<?php echo h($c['room_number'] ?? '-'); ?>"
+                                            data-category="<?php echo h($c['category']); ?>"
+                                            data-date="<?php echo niceDate($c['created_at']); ?>"
+                                            data-description="<?php echo h($c['description']); ?>"
+                                            data-status="<?php echo slug($c['status']); ?>">View / Update</button>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+
+    <!-- COMPLAINT DETAILS & UPDATE MODAL -->
+    <div class="modal-overlay" id="complaintModal">
+        <div class="modal-box large-modal">
+            <button class="close-modal-btn"><i class="fa-solid fa-xmark"></i></button>
+
+            <div class="modal-header">
+                <h2>Complaint Management</h2>
+                <span class="complaint-id" id="cm-idLabel"></span>
+            </div>
+
+            <div class="modal-body dual-column">
+
+                <div class="left-panel">
+                    <div class="detail-block">
+                        <div class="detail-row"><span>Student:</span> <strong id="cm-student"></strong></div>
+                        <div class="detail-row"><span>Room:</span> <strong id="cm-room"></strong></div>
+                        <div class="detail-row"><span>Category:</span> <strong id="cm-category"></strong></div>
+                        <div class="detail-row"><span>Submitted:</span> <strong id="cm-date"></strong></div>
+                    </div>
+
+                    <div class="desc-block mt-20">
+                        <h4>Complaint Description</h4>
+                        <p class="desc-text" id="cm-description"></p>
+                    </div>
+
+                    <hr class="divider">
+
+                    <div class="update-section">
+                        <h4>Update Complaint</h4>
+                        <form id="updateComplaintForm" method="POST">
+                            <input type="hidden" name="complaint_id" id="cm-complaintId">
+                            <div class="form-group">
+                                <label>Status</label>
+                                <select name="status" id="updateStatus" required>
+                                    <option value="New">New</option>
+                                    <option value="In Progress">In Progress</option>
+                                    <option value="Resolved">Resolved</option>
+                                    <option value="Closed">Closed</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Resolution / Remarks</label>
+                                <textarea name="remarks" id="updateRemarks" rows="3" placeholder="e.g., Maintenance staff dispatched to check the fan motor..." required></textarea>
+                            </div>
+                            <button type="submit" name="update_complaint" class="publish-btn bg-blue w-100">SAVE UPDATE</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="right-panel">
+                    <h4>Complaint History</h4>
+                    <div class="timeline" id="cm-timeline"></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+<?php include "includes/footer_admin.php"; ?>
+    <script>
+        const categoryLabels = <?php echo json_encode(array_column($categoryData, 'category')); ?>;
+        const categoryCounts = <?php echo json_encode(array_map('intval', array_column($categoryData, 'c'))); ?>;
+        // Every status-change entry for every complaint, grouped in JS by complaint id
+        // to render the timeline without a separate page load per complaint.
+        const allUpdates = <?php echo json_encode($allUpdates); ?>;
+    </script>
+    <script src="js/complaints.js"></script>
+</body>
+</html>

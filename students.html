@@ -1,0 +1,227 @@
+
+        <main class="main-content">
+            <header class="top-nav">
+                <div class="welcome-text">
+                    <h1>Students</h1>
+                    <p>Manage student profiles, hostel status, and records.</p>
+                </div>
+                <div class="user-profile">
+                    <button class="action-btn" id="openAddModal"><i class="fa-solid fa-plus"></i> Add Student</button>
+                </div>
+            </header>
+
+            <?php if ($message): ?>
+                <div class="card" style="padding: 12px 16px; margin-bottom: 16px; border-left: 4px solid #22c55e;">
+                    <?php echo h($message); ?>
+                </div>
+            <?php endif; ?>
+
+            <div class="card table-card">
+                <div class="card-header">
+                    <h3>All Students</h3>
+                </div>
+                <div class="filter-bar">
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="studentSearch" placeholder="Search name, roll no, email...">
+                    </div>
+                    <select class="filter-dropdown" id="courseFilter">
+                        <option value="all">All Courses</option>
+                        <?php foreach ($courses as $c): ?><option value="<?php echo h($c); ?>"><?php echo h($c); ?></option><?php endforeach; ?>
+                    </select>
+                    <select class="filter-dropdown" id="statusFilter">
+                        <option value="all">All Statuses</option>
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                        <option value="Graduated">Graduated</option>
+                        <option value="Left">Left</option>
+                    </select>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="data-table" id="studentTable">
+                        <thead>
+                            <tr>
+                                <th>Roll No</th><th>Name</th><th>Email</th><th>Course</th><th>Room</th><th>Status</th><th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($students as $s): ?>
+                                <?php
+                                $courseFirstWord = explode(' ', $s['course'])[0];
+                                ?>
+                                <tr data-course="<?php echo h($courseFirstWord); ?>" data-status="<?php echo h($s['status']); ?>"
+                                    data-id="<?php echo $s['id']; ?>"
+                                    data-name="<?php echo h($s['name']); ?>"
+                                    data-roll="<?php echo h($s['roll_no']); ?>"
+                                    data-email="<?php echo h($s['email']); ?>"
+                                    data-phone="<?php echo h($s['phone']); ?>"
+                                    data-gender="<?php echo h($s['gender']); ?>"
+                                    data-dob="<?php echo h($s['dob']); ?>"
+                                    data-course-full="<?php echo h($s['course']); ?>"
+                                    data-guardian="<?php echo h($s['guardian_name']); ?>"
+                                    data-guardian-phone="<?php echo h($s['guardian_phone']); ?>"
+                                    data-address="<?php echo h($s['address']); ?>"
+                                    data-room="<?php echo h($s['room_number'] ?? 'Not allocated'); ?>"
+                                    data-bed="<?php echo h($s['bed_label'] ?? '-'); ?>"
+                                    data-joined="<?php echo niceDate($s['created_at']); ?>"
+                                    data-complaints="<?php echo $s['complaint_count']; ?>"
+                                    data-leaves="<?php echo $s['leave_count']; ?>">
+                                    <td><strong><?php echo h($s['roll_no']); ?></strong></td>
+                                    <td><?php echo h($s['name']); ?></td>
+                                    <td><?php echo h($s['email']); ?></td>
+                                    <td><?php echo h($s['course']); ?></td>
+                                    <td><?php echo h($s['room_number'] ?? 'Not allocated'); ?></td>
+                                    <td><span class="status-badge <?php echo strtolower($s['status']); ?>"><?php echo h($s['status']); ?></span></td>
+                                    <td>
+                                        <div class="action-buttons text-sm">
+                                            <button class="view-btn open-view-modal"><i class="fa-solid fa-eye"></i> View</button>
+                                            <button class="edit-btn open-edit-modal"><i class="fa-solid fa-pen"></i> Edit</button>
+                                            <form method="POST" action="students.php" style="display:inline;"
+                                                  onsubmit="return confirm('Remove this student? This cannot be undone.');">
+                                                <input type="hidden" name="delete_student" value="1">
+                                                <input type="hidden" name="student_id" value="<?php echo (int) $s['id']; ?>">
+                                                <button type="submit" class="delete-btn"><i class="fa-solid fa-trash"></i> Delete</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+
+    <!-- ADD STUDENT MODAL -->
+    <div class="modal-overlay" id="addStudentModal">
+        <div class="modal-box large-modal">
+            <button class="close-modal-btn"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-header"><h2>Add Student</h2></div>
+            <div class="modal-body">
+                <form id="addStudentForm" method="POST">
+                    <div class="form-row">
+                        <div class="form-group half"><label>Full Name</label><input type="text" name="name" required></div>
+                        <div class="form-group half"><label>Roll Number</label><input type="text" name="roll_no" required></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group half"><label>Email</label><input type="email" name="email" required></div>
+                        <div class="form-group half"><label>Phone</label><input type="text" name="phone" required></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label>Gender</label>
+                            <select name="gender" required>
+                                <option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group half"><label>Date of Birth</label><input type="date" name="dob"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label>Course</label>
+                            <select name="course" required><?php foreach ($courses as $c): ?><option value="<?php echo h($c); ?>"><?php echo h($c); ?></option><?php endforeach; ?></select>
+                        </div>
+                        <div class="form-group half">
+                            <label>Year</label>
+                            <select name="year" required><?php foreach ($years as $y): ?><option value="<?php echo h($y); ?>"><?php echo h($y); ?></option><?php endforeach; ?></select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group half"><label>Guardian Name</label><input type="text" name="guardian_name"></div>
+                        <div class="form-group half"><label>Guardian Phone</label><input type="text" name="guardian_phone"></div>
+                    </div>
+                    <div class="form-group"><label>Address</label><input type="text" name="address"></div>
+                </form>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="cancel-btn close-modal-btn-secondary">Cancel</button>
+                <button type="submit" form="addStudentForm" name="add_student" class="publish-btn bg-blue">ADD STUDENT</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIEW STUDENT MODAL -->
+    <div class="modal-overlay" id="viewStudentModal">
+        <div class="modal-box large-modal">
+            <button class="close-modal-btn"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-header">
+                <h2>Student Details</h2>
+                <span class="status-badge active" id="vs-status">Active</span>
+            </div>
+            <div class="modal-body profile-view">
+                <div class="profile-header-info mb-20">
+                    <div class="large-avatar" id="vs-avatar">?</div>
+                    <div>
+                        <h3 id="vs-name"></h3>
+                        <p>Student ID: <strong id="vs-roll"></strong></p>
+                    </div>
+                </div>
+                <div class="detail-grid">
+                    <div class="detail-item"><span>Email:</span> <span id="vs-email"></span></div>
+                    <div class="detail-item"><span>Phone:</span> <span id="vs-phone"></span></div>
+                    <div class="detail-item"><span>Gender:</span> <span id="vs-gender"></span></div>
+                    <div class="detail-item"><span>DOB:</span> <span id="vs-dob"></span></div>
+                    <div class="detail-item"><span>Course:</span> <span id="vs-course"></span></div>
+                    <div class="detail-item"><span>Guardian:</span> <span id="vs-guardian"></span></div>
+                    <div class="detail-item"><span>Guard. Ph:</span> <span id="vs-guardian-phone"></span></div>
+                </div>
+                <div class="detail-item mt-10"><span>Address:</span> <span id="vs-address"></span></div>
+                <div class="info-boxes-row mt-20">
+                    <div class="info-block border-blue">
+                        <h4>Hostel Information</h4>
+                        <p><strong>Room:</strong> <span id="vs-room"></span></p>
+                        <p><strong>Bed:</strong> <span id="vs-bed"></span></p>
+                    </div>
+                    <div class="info-block border-orange">
+                        <h4>Student History</h4>
+                        <p><strong>Joined:</strong> <span id="vs-joined"></span></p>
+                        <p><strong>Leaves:</strong> <span id="vs-leaves"></span> &nbsp;|&nbsp; <strong>Complaints:</strong> <span id="vs-complaints"></span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="cancel-btn close-modal-btn-secondary">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EDIT STUDENT MODAL -->
+    <div class="modal-overlay" id="editStudentModal">
+        <div class="modal-box large-modal">
+            <button class="close-modal-btn"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-header"><h2>Edit Student</h2></div>
+            <div class="modal-body">
+                <form id="editStudentForm" method="POST">
+                    <input type="hidden" name="student_id" id="es-id">
+                    <div class="form-row">
+                        <div class="form-group half"><label>Full Name</label><input type="text" name="name" id="es-name" required></div>
+                        <div class="form-group half"><label>Email</label><input type="email" name="email" id="es-email" required></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group half"><label>Phone</label><input type="text" name="phone" id="es-phone" required></div>
+                        <div class="form-group half">
+                            <label>Status</label>
+                            <select name="status" id="es-status" required>
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                                <option value="Graduated">Graduated</option>
+                                <option value="Left">Left Hostel</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group"><label>Course</label><input type="text" name="course" id="es-course" required></div>
+                </form>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="cancel-btn close-modal-btn-secondary">Cancel</button>
+                <button type="submit" form="editStudentForm" name="edit_student" class="publish-btn bg-orange">SAVE CHANGES</button>
+            </div>
+        </div>
+    </div>
+
+<?php include "includes/footer_admin.php"; ?>
+    <script src="js/students.js"></script>
+</body>
+</html>

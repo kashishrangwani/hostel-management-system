@@ -1,0 +1,92 @@
+  <main class="main-content">
+    <div class="container">
+      <div class="auth-wrapper" style="max-width: 600px;" id="registerCard">
+        <div class="auth-header">
+          <div class="section-tag">New Admission</div>
+          <h2>Student Registration</h2>
+          <p>Create your hostel resident account by filling in the details below.</p>
+        </div>
+
+        <?php if (!empty($errors)): ?>
+          <div style="margin-bottom: 14px;">
+            <?php foreach ($errors as $err): ?>
+              <p class="error-message" style="display:block;"><?php echo h($err); ?></p>
+            <?php endforeach; ?>
+          </div>
+        <?php endif; ?>
+
+        <form method="POST" novalidate>
+          <div class="form-group">
+            <label for="regName" class="form-label">Full Name <span class="required">*</span></label>
+            <input type="text" id="regName" name="name" class="form-control"
+                   placeholder="e.g. Rahul Sharma" value="<?php echo h($name); ?>" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="regEmail" class="form-label">Email Address <span class="required">*</span></label>
+              <input type="email" id="regEmail" name="email" class="form-control"
+                     placeholder="student@example.com" value="<?php echo h($email); ?>" required>
+            </div>
+            <div class="form-group">
+              <label for="regPhone" class="form-label">Phone Number (10 Digits) <span class="required">*</span></label>
+              <input type="tel" id="regPhone" name="phone" class="form-control"
+                     placeholder="9876543210" maxlength="10" value="<?php echo h($phone); ?>" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="regCourse" class="form-label">Course & Year <span class="required">*</span></label>
+              <select id="regCourse" name="course" class="form-control" required>
+                <option value="">-- Select Course / Year --</option>
+                <?php
+                $courseOptions = ["MCA 1st Year", "MCA 2nd Year", "B.Tech 1st Year", "B.Tech 2nd Year",
+                    "B.Tech 3rd Year", "B.Tech 4th Year", "BCA 1st Year", "BCA 2nd/3rd Year", "MBA 1st/2nd Year"];
+                foreach ($courseOptions as $opt):
+                  $selected = ($course === $opt) ? 'selected' : '';
+                ?>
+                  <option value="<?php echo h($opt); ?>" <?php echo $selected; ?>><?php echo h($opt); ?></option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Gender <span class="required">*</span></label>
+              <div class="radio-group">
+                <label class="radio-label"><input type="radio" name="gender" value="Male" <?php echo $gender === 'Male' ? 'checked' : ''; ?>> Male</label>
+                <label class="radio-label"><input type="radio" name="gender" value="Female" <?php echo $gender === 'Female' ? 'checked' : ''; ?>> Female</label>
+                <label class="radio-label"><input type="radio" name="gender" value="Other" <?php echo $gender === 'Other' ? 'checked' : ''; ?>> Other</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="regPassword" class="form-label">Password <span class="required">*</span></label>
+              <div class="input-password-wrapper">
+                <input type="password" id="regPassword" name="password" class="form-control"
+                       placeholder="Min 6 characters" required>
+                <button type="button" class="toggle-password-btn" data-target="regPassword">Show</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="regConfirmPassword" class="form-label">Confirm Password <span class="required">*</span></label>
+              <div class="input-password-wrapper">
+                <input type="password" id="regConfirmPassword" name="confirm_password" class="form-control"
+                       placeholder="Re-enter password" required>
+                <button type="button" class="toggle-password-btn" data-target="regConfirmPassword">Show</button>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block" style="margin-top: 10px;">Create Resident Account</button>
+
+          <div class="form-footer">
+            <p>Already have an account? <a href="login.php"><strong>Login here</strong></a></p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+

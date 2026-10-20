@@ -1,0 +1,141 @@
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+
+            <header class="top-nav">
+                <div class="welcome-text">
+                    <h1>Welcome, <?php echo h($_SESSION['name']); ?></h1>
+                    <p><?php echo date("l, d F Y"); ?></p>
+                </div>
+                <div class="user-profile">
+                    <div class="avatar-group">
+                        <div class="avatar"></div>
+                        <span class="profile-name"><?php echo h($_SESSION['name']); ?></span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="stats-grid primary-stats">
+                <div class="stat-card">
+                    <div class="icon-wrap blue"><i class="fa-solid fa-users"></i></div>
+                    <div class="stat-info"><p>Total Students</p><h4><?php echo $totalStudents; ?></h4></div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon-wrap orange"><i class="fa-solid fa-door-closed"></i></div>
+                    <div class="stat-info"><p>Total Rooms</p><h4><?php echo $totalRooms; ?></h4></div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon-wrap green"><i class="fa-solid fa-bed"></i></div>
+                    <div class="stat-info"><p>Total Beds</p><h4><?php echo $totalBeds; ?></h4></div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon-wrap purple"><i class="fa-solid fa-chart-line"></i></div>
+                    <div class="stat-info"><p>Occupancy Rate</p><h4><?php echo $occupancyRate; ?>%</h4></div>
+                </div>
+            </div>
+
+            <div class="stats-grid secondary-stats">
+                <div class="stat-card mini">
+                    <p>Pending Fees</p><h4 class="text-red"><?php echo money($pendingFees); ?></h4>
+                </div>
+                <div class="stat-card mini">
+                    <p>Active Leaves</p><h4 class="text-orange"><?php echo $pendingLeaves; ?> Requests</h4>
+                </div>
+                <div class="stat-card mini">
+                    <p>Open Complaints</p><h4 class="text-orange"><?php echo $openComplaints; ?> Issues</h4>
+                </div>
+                <div class="stat-card mini">
+                    <p>Without Room</p><h4 class="text-red"><?php echo $withoutRoom; ?> Students</h4>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="card chart-container">
+                    <h3>Room Occupancy</h3>
+                    <canvas id="occupancyChart"></canvas>
+                </div>
+                <div class="card chart-container">
+                    <h3>Students by Course</h3>
+                    <canvas id="courseChart"></canvas>
+                </div>
+                <div class="card chart-container">
+                    <h3>Fees Status</h3>
+                    <canvas id="feesChart"></canvas>
+                </div>
+            </div>
+
+            <div class="recent-grid">
+                <div class="card list-card">
+                    <h3>Recent Allocations</h3>
+                    <div class="list-wrapper">
+                        <?php if ($recentAllocations): ?>
+                            <?php foreach ($recentAllocations as $a): ?>
+                                <div class="list-item">
+                                    <div class="item-text">
+                                        <strong><?php echo h($a['name']); ?></strong>
+                                        <span>Room <?php echo h($a['room_number']); ?> (<?php echo h($a['bed_label']); ?>)</span>
+                                    </div>
+                                    <small><?php echo niceDate($a['allocated_at']); ?></small>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <p style="font-size:13px; color:var(--text-muted);">No allocations yet.</p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <div class="card list-card">
+                    <h3>Recent Activity</h3>
+                    <div class="list-wrapper">
+                        <?php
+                        $activity = array_merge($recentComplaints, $recentLeaves);
+                        usort($activity, fn($a, $b) => strtotime($b['created_at']) <=> strtotime($a['created_at']));
+                        $activity = array_slice($activity, 0, 3);
+                        ?>
+                        <?php if ($activity): ?>
+                            <?php foreach ($activity as $item): ?>
+                                <div class="list-item">
+                                    <div class="item-text">
+                                        <strong><?php echo h($item['title']); ?> (<?php echo h($item['kind']); ?>)</strong>
+                                        <span><?php echo h($item['room_number'] ?? 'No room'); ?></span>
+                                    </div>
+                                    <small><?php echo niceDate($item['created_at']); ?></small>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <p style="font-size:13px; color:var(--text-muted);">No recent activity.</p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <div class="card list-card">
+                    <h3>Active Notices</h3>
+                    <div class="list-wrapper">
+                        <?php if ($activeNotices): ?>
+                            <?php foreach ($activeNotices as $n): ?>
+                                <div class="list-item">
+                                    <div class="item-text">
+                                        <strong><?php echo h($n['title']); ?></strong>
+                                        <span><?php echo h($n['audience']); ?></span>
+                                    </div>
+                                    <span class="status-dot green"></span>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <p style="font-size:13px; color:var(--text-muted);">No active notices.</p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+<?php include "includes/footer_admin.php"; ?>
+
+    <script>
+        const occupancyData = { occupied: <?php echo $occupiedBeds; ?>, vacant: <?php echo max(0, $totalBeds - $occupiedBeds); ?> };
+        const courseLabels = <?php echo json_encode(array_column($courseData, 'course')); ?>;
+        const courseCounts = <?php echo json_encode(array_map('intval', array_column($courseData, 'c'))); ?>;
+        const feesData = { paid: <?php echo (float) $paidTotal; ?>, due: <?php echo (float) $dueTotal; ?> };
+    </script>
+    <script src="js/admin_dashboard.js"></script>
+</body>
+</html>

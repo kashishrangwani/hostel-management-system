@@ -1,0 +1,133 @@
+
+        <main class="main-content">
+
+            <header class="top-nav no-print">
+                <div class="welcome-text">
+                    <h1>System Reports</h1>
+                    <p>Generate, visualize, and export detailed administrative records.</p>
+                </div>
+                <div class="user-profile">
+                    <div class="avatar-group">
+                        <div class="avatar"></div>
+                        <span class="profile-name"><?php echo h($_SESSION['name']); ?></span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="card form-card mb-25 no-print">
+                <div class="card-header"><h3><i class="fa-solid fa-sliders"></i> Report Configuration</h3></div>
+
+                <form id="reportConfigForm">
+                    <div class="form-row border-bottom pb-15 mb-15">
+                        <div class="form-group flex-2">
+                            <label>Report Type</label>
+                            <select id="reportTypeSelect" required>
+                                <option value="" disabled selected>-- Select Report Type --</option>
+                                <option value="students">Student Report</option>
+                                <option value="rooms">Room Allocation Report</option>
+                                <option value="fees">Fees Report</option>
+                                <option value="leave">Leave Report</option>
+                                <option value="complaints">Complaint Report</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="dynamicFiltersContainer">
+                        <p class="placeholder-text text-gray text-sm"><i class="fa-solid fa-circle-info"></i> Please select a report type to view available filters.</p>
+                    </div>
+
+                    <div class="filter-actions mt-20">
+                        <button type="button" class="cancel-btn" id="resetReportBtn">Reset</button>
+                        <button type="submit" class="publish-btn bg-blue" id="generateReportBtn" disabled><i class="fa-solid fa-bolt"></i> Generate Report</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="report-results-wrapper" id="reportResultsWrapper" style="display: none;">
+
+                <div class="results-header no-print">
+                    <h2 id="generatedReportTitle">Report</h2>
+                    <div class="export-actions">
+                        <button class="export-btn print-btn" id="printReportBtn"><i class="fa-solid fa-print"></i> Print Report</button>
+                        <button class="export-btn pdf-btn" id="exportPdfBtn"><i class="fa-solid fa-file-pdf"></i> Export PDF</button>
+                    </div>
+                </div>
+
+                <div class="print-only print-header">
+                    <h2>Hostel Management System</h2>
+                    <h3 id="printReportTitle">Report</h3>
+                    <p>Generated on: <span id="printDate"></span></p>
+                    <hr>
+                </div>
+
+                <div class="stats-grid" id="dynamicStatsRow"></div>
+
+                <div class="content-split-layout">
+                    <div class="card table-card flex-2">
+                        <div class="table-responsive">
+                            <table class="data-table" id="reportDataTable">
+                                <thead id="reportTableHead"></thead>
+                                <tbody id="reportTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card chart-card flex-1">
+                        <h3 id="chartTitle" class="chart-heading">Visual Analysis</h3>
+                        <div class="chart-container"><canvas id="dynamicReportChart"></canvas></div>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+
+    <!-- Hidden Template HTML for Filters -->
+    <template id="filterTpl-students">
+        <div class="form-row">
+            <div class="form-group flex-1"><label>Course</label><select id="f-course"><option value="All">All Courses</option><option>BCA</option><option>MCA</option><option>BSc IT</option><option>B.Tech</option><option>MBA</option></select></div>
+            <div class="form-group flex-1"><label>Status</label><select id="f-status"><option value="All">All Statuses</option><option>Active</option><option>Inactive</option><option>Graduated</option><option>Left</option></select></div>
+        </div>
+    </template>
+    <template id="filterTpl-rooms">
+        <div class="form-row">
+            <div class="form-group flex-1"><label>Block</label><select id="f-block"><option value="All">All Blocks</option></select></div>
+            <div class="form-group flex-1"><label>Status</label><select id="f-status"><option value="All">All</option><option value="Occupied">Fully Occupied</option><option value="Available">Has Vacancy</option><option value="Maintenance">Maintenance</option></select></div>
+        </div>
+    </template>
+    <template id="filterTpl-fees">
+        <div class="form-row">
+            <div class="form-group flex-1"><label>Payment Status</label><select id="f-status"><option value="All">All</option><option>Paid</option><option>Pending</option><option>Overdue</option></select></div>
+            <div class="form-group flex-1"><label>From Date</label><input type="date" id="f-from"></div>
+            <div class="form-group flex-1"><label>To Date</label><input type="date" id="f-to"></div>
+        </div>
+    </template>
+    <template id="filterTpl-leave">
+        <div class="form-row">
+            <div class="form-group flex-1"><label>Status</label><select id="f-status"><option value="All">All</option><option>Upcoming</option><option>On Leave</option><option>Returned</option><option>Cancelled</option></select></div>
+            <div class="form-group flex-1"><label>From Date</label><input type="date" id="f-from"></div>
+            <div class="form-group flex-1"><label>To Date</label><input type="date" id="f-to"></div>
+        </div>
+    </template>
+    <template id="filterTpl-complaints">
+        <div class="form-row">
+            <div class="form-group flex-1"><label>Category</label><select id="f-category"><option value="All">All</option><option>Maintenance</option><option>Water</option><option>Electricity</option><option>Cleanliness</option><option>Internet</option></select></div>
+            <div class="form-group flex-1"><label>Status</label><select id="f-status"><option value="All">All</option><option>New</option><option>In Progress</option><option>Resolved</option><option>Closed</option></select></div>
+        </div>
+    </template>
+
+<?php include "includes/footer_admin.php"; ?>
+    <script>
+        // Real data for every report type, gathered once here and
+        // filtered/aggregated entirely in JS so Generate feels instant.
+        const reportData = {
+            students: <?php echo json_encode($studentsData); ?>,
+            rooms: <?php echo json_encode($roomsData); ?>,
+            fees: <?php echo json_encode($feesData); ?>,
+            leave: <?php echo json_encode($leaveData); ?>,
+            complaints: <?php echo json_encode($complaintsData); ?>
+        };
+    </script>
+    <script src="js/reports.js"></script>
+</body>
+</html>

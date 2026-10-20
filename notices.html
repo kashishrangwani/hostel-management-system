@@ -1,0 +1,191 @@
+
+        <main class="main-content">
+
+            <header class="top-nav">
+                <div class="welcome-text">
+                    <h1>Hostel Notices</h1>
+                    <p>Create, schedule, and manage official announcements.</p>
+                </div>
+                <div class="user-profile">
+                    <div class="avatar-group">
+                        <div class="avatar"></div>
+                        <span class="profile-name"><?php echo h($_SESSION['name']); ?></span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="icon-wrap blue"><i class="fa-solid fa-bullhorn"></i></div>
+                    <div class="stat-info"><p>Total Notices</p><h4><?php echo $totalNotices; ?></h4></div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon-wrap green"><i class="fa-solid fa-check-double"></i></div>
+                    <div class="stat-info"><p>Published</p><h4><?php echo $publishedCount; ?></h4></div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon-wrap orange"><i class="fa-regular fa-clock"></i></div>
+                    <div class="stat-info"><p>Scheduled</p><h4><?php echo $scheduledCount; ?></h4></div>
+                </div>
+            </div>
+
+            <div class="card table-card">
+                <div class="card-header">
+                    <h3>Notice Board</h3>
+                    <button class="action-btn" id="openCreateModal"><i class="fa-solid fa-plus"></i> Create Notice</button>
+                </div>
+
+                <div class="filter-bar">
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="noticeSearch" placeholder="Search notice title or keyword...">
+                    </div>
+                    <select class="filter-dropdown" id="categoryFilter">
+                        <option value="all">All Categories</option>
+                        <option value="General">General</option>
+                        <option value="Fees">Fees</option>
+                        <option value="Hostel Rules">Hostel Rules</option>
+                        <option value="Mess">Mess</option>
+                        <option value="Maintenance">Maintenance</option>
+                        <option value="Events">Events</option>
+                        <option value="Emergency">Emergency</option>
+                    </select>
+                    <select class="filter-dropdown" id="statusFilter">
+                        <option value="all">All Statuses</option>
+                        <option value="published">Published</option>
+                        <option value="scheduled">Scheduled</option>
+                    </select>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="data-table" id="noticeTable">
+                        <thead><tr><th>Notice Title</th><th>Category</th><th>Audience</th><th>Publish Date</th><th>Status</th><th>Action</th></tr></thead>
+                        <tbody>
+                            <?php foreach ($notices as $n): ?>
+                                <?php $status = noticeStatus($n['publish_date']); $statusSlug = slug($status); ?>
+                                <tr data-category="<?php echo h($n['category']); ?>" data-status="<?php echo $statusSlug; ?>">
+                                    <td><strong><?php echo h($n['title']); ?></strong></td>
+                                    <td><?php echo h($n['category']); ?></td>
+                                    <td><?php echo h($n['audience']); ?></td>
+                                    <td><?php echo niceDate($n['publish_date']); ?></td>
+                                    <td><span class="status-badge <?php echo $statusSlug; ?>"><?php echo h($status); ?></span></td>
+                                    <td>
+                                        <button class="view-btn open-view-modal"
+                                            data-id="<?php echo $n['id']; ?>"
+                                            data-title="<?php echo h($n['title']); ?>"
+                                            data-category="<?php echo h($n['category']); ?>"
+                                            data-audience="<?php echo h($n['audience']); ?>"
+                                            data-publish-date="<?php echo h($n['publish_date']); ?>"
+                                            data-publish-date-nice="<?php echo h(niceDate($n['publish_date'])); ?>"
+                                            data-description="<?php echo h($n['description']); ?>"
+                                            data-status="<?php echo $statusSlug; ?>"
+                                            data-status-label="<?php echo h($status); ?>">View / Manage</button>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+
+    <!-- CREATE / EDIT NOTICE MODAL -->
+    <div class="modal-overlay" id="createNoticeModal">
+        <div class="modal-box">
+            <button class="close-modal-btn"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-header"><h2 id="cn-modalTitle">Create Notice</h2></div>
+
+            <div class="modal-body">
+                <form id="createNoticeForm" method="POST">
+                    <input type="hidden" name="notice_id" id="cn-noticeId">
+                    <div class="form-group">
+                        <label>Notice Title</label>
+                        <input type="text" name="title" id="cn-title" placeholder="e.g., Mandatory Meeting in Common Room" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label>Category</label>
+                            <select name="category" id="cn-category" required>
+                                <option value="General">General</option>
+                                <option value="Fees">Fees</option>
+                                <option value="Hostel Rules">Hostel Rules</option>
+                                <option value="Mess">Mess</option>
+                                <option value="Maintenance">Maintenance</option>
+                                <option value="Events">Events</option>
+                                <option value="Emergency">Emergency</option>
+                            </select>
+                        </div>
+                        <div class="form-group half">
+                            <label>Target Audience</label>
+                            <select name="audience" id="cn-audience" required>
+                                <option value="All Students">All Students</option>
+                                <option value="Block A">Specific Block: Block A</option>
+                                <option value="Block B">Specific Block: Block B</option>
+                                <option value="1st Years">Specific Year: 1st Years</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Publish Date (Select future date to schedule)</label>
+                        <input type="date" name="publish_date" id="cn-publishDate" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Notice Description</label>
+                        <textarea name="description" id="cn-description" rows="5" placeholder="Write the complete announcement here..." required></textarea>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="cancel-btn close-modal-btn-secondary">Cancel</button>
+                <button type="submit" form="createNoticeForm" name="create_notice" id="cn-submitBtn" class="publish-btn bg-blue">PUBLISH NOTICE</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOTICE DETAILS & MANAGEMENT MODAL -->
+    <div class="modal-overlay" id="viewNoticeModal">
+        <div class="modal-box">
+            <button class="close-modal-btn"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-header"><h2>Notice Details</h2></div>
+
+            <div class="modal-body">
+                <h3 class="notice-detail-title" id="vn-title"></h3>
+
+                <div class="notice-meta-grid">
+                    <div><span>Category:</span> <strong id="vn-category"></strong></div>
+                    <div><span>Published:</span> <strong id="vn-published"></strong></div>
+                    <div><span>Audience:</span> <strong id="vn-audience"></strong></div>
+                    <div><span>Status:</span> <strong id="vn-status"></strong></div>
+                </div>
+
+                <hr class="divider">
+                <div class="notice-content-box"><p id="vn-description"></p></div>
+                <hr class="divider">
+            </div>
+
+            <div class="modal-actions space-between">
+                <form method="POST" action="notices.php" id="vn-deleteForm" style="display:inline;"
+                      onsubmit="return confirm('Remove this notice?');">
+                    <input type="hidden" name="delete_notice" value="1">
+                    <input type="hidden" name="notice_id" id="vn-deleteId" value="">
+                    <button type="submit" class="action-text-btn text-red" style="background:none;border:none;cursor:pointer;padding:0;font:inherit;">
+                        <i class="fa-solid fa-trash"></i> Remove Notice
+                    </button>
+                </form>
+                <div class="right-actions">
+                    <button type="button" class="cancel-btn close-modal-btn-secondary">Close</button>
+                    <button type="button" class="publish-btn bg-orange" id="vn-editBtn"><i class="fa-solid fa-pen"></i> Edit Notice</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<?php include "includes/footer_admin.php"; ?>
+    <script src="js/notices.js"></script>
+</body>
+</html>

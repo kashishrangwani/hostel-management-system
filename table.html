@@ -1,0 +1,68 @@
+  <main class="main-content">
+    <div class="container">
+
+      <div class="dashboard-header">
+        <div>
+          <h1 style="font-size: 24px; font-weight: 700; color: var(--text-main);">Complaint History & Status</h1>
+          <p style="font-size: 14px; color: var(--text-muted);">Real-time tracking of all reported room and hostel maintenance tickets.</p>
+        </div>
+        <div>
+          <a href="forms.php" class="btn btn-primary btn-sm">&#43; File New Complaint</a>
+        </div>
+      </div>
+
+      <div class="table-wrapper" id="complaintsTableWrapper">
+        <div class="table-header-bar">
+          <div class="table-header-title">All Registered Tickets</div>
+          <div class="table-search-box">
+            <input type="text" id="tableSearchInput" class="form-control"
+                   placeholder="Search by keyword or category..." style="padding: 7px 12px; font-size: 13px; width: 220px;">
+            <select id="tableStatusFilter" class="form-control" style="padding: 7px 12px; font-size: 13px; width: 140px;">
+              <option value="All">All Statuses</option>
+              <option value="New">New</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Resolved">Resolved</option>
+              <option value="Closed">Closed</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-responsive-container">
+          <table class="responsive-table" id="complaintsTable">
+            <thead>
+              <tr>
+                <th style="width: 50%;">Complaint & Category</th>
+                <th style="width: 25%;">Status</th>
+                <th style="width: 25%;">Date Registered</th>
+              </tr>
+            </thead>
+            <tbody id="complaintTableBody">
+              <?php if ($complaints): ?>
+                <?php foreach ($complaints as $c): ?>
+                  <tr>
+                    <td>
+                      <strong><?php echo h($c['title']); ?></strong><br>
+                      <span style="font-size: 12px; color: var(--text-muted);"><?php echo h($c['category']); ?></span>
+                    </td>
+                    <td><span class="badge <?php echo studentBadgeClass($c['status']); ?>"><?php echo h($c['status']); ?></span></td>
+                    <td><?php echo niceDate($c['created_at']); ?></td>
+                  </tr>
+                <?php endforeach; ?>
+              <?php else: ?>
+                <tr><td colspan="3" style="text-align: center; padding: 30px;">You haven't filed any complaints yet.</td></tr>
+              <?php endif; ?>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div style="margin-top: 24px; display: flex; gap: 20px; flex-wrap: wrap; font-size: 13px; color: var(--text-muted);">
+        <div><strong>Status Legend:</strong></div>
+        <div><span class="badge badge-pending">New</span> — Ticket received by warden office</div>
+        <div><span class="badge badge-progress">In Progress</span> — Maintenance technician assigned</div>
+        <div><span class="badge badge-resolved">Resolved</span> — Work verified and closed</div>
+      </div>
+
+    </div>
+  </main>
+

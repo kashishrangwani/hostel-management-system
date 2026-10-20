@@ -1,0 +1,102 @@
+  <main class="main-content">
+    <div class="container">
+
+      <div class="section-header" style="margin-bottom: 30px;">
+        <span class="section-tag">Student Services</span>
+        <h1 class="section-title">Hostel Online Forms</h1>
+        <p class="section-subtitle">Submit room maintenance tickets or apply for night out/weekend leave directly to the warden office.</p>
+      </div>
+
+      <div class="forms-container">
+
+        <!-- Complaint Form -->
+        <div class="form-panel" id="complaintPanel">
+          <div class="panel-title"><span>&#9888;&#65039;</span> Hostel Complaint Form</div>
+          <p class="panel-subtitle">Report any maintenance or service issues in your room or common areas.</p>
+
+          <?php if ($complaintMessage): ?>
+            <p class="error-message" style="display:block; margin-bottom: 10px; color: var(--primary-color);"><?php echo h($complaintMessage); ?></p>
+          <?php endif; ?>
+
+          <form method="POST" novalidate>
+            <div class="form-group">
+              <label for="complaintTitle" class="form-label">Complaint Title <span class="required">*</span></label>
+              <input type="text" id="complaintTitle" name="complaint_title" class="form-control"
+                     placeholder="e.g. Geyser not heating water in Room 304" required>
+            </div>
+
+            <div class="form-group">
+              <label for="complaintCategory" class="form-label">Category <span class="required">*</span></label>
+              <select id="complaintCategory" name="complaint_category" class="form-control" required>
+                <option value="Electricity">Electrical (Fan, Light, Socket, Geyser)</option>
+                <option value="Water">Plumbing / Water Supply (Tap, Shower, Leakage)</option>
+                <option value="Internet">Wi-Fi & Internet Connectivity</option>
+                <option value="Maintenance">General Maintenance / Furniture</option>
+                <option value="Cleanliness">Housekeeping / Room Cleaning</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="complaintDesc" class="form-label">Detailed Description <span class="required">*</span></label>
+              <textarea id="complaintDesc" name="complaint_desc" class="form-control" rows="4"
+                        placeholder="Please describe the issue in detail..." required></textarea>
+            </div>
+
+            <button type="submit" name="submit_complaint" class="btn btn-primary btn-block">Submit Complaint Ticket</button>
+
+            <div style="text-align: center; margin-top: 12px;">
+              <a href="table.php" style="font-size: 13px; font-weight: 600;">View Existing Complaints History &rarr;</a>
+            </div>
+          </form>
+        </div>
+
+        <!-- Leave Form -->
+        <div class="form-panel" id="leavePanel">
+          <div class="panel-title"><span>&#128197;</span> Leave Application Form</div>
+          <p class="panel-subtitle">Apply for weekend stay, festival vacation, or medical leave pass.</p>
+
+          <?php if ($leaveMessage): ?>
+            <p class="error-message" style="display:block; margin-bottom: 10px; color: var(--primary-color);"><?php echo h($leaveMessage); ?></p>
+          <?php endif; ?>
+
+          <form method="POST" novalidate>
+            <div class="form-group">
+              <label for="leaveType" class="form-label">Leave Type <span class="required">*</span></label>
+              <select id="leaveType" name="leave_type" class="form-control" required>
+                <option value="Personal">Personal</option>
+                <option value="Medical">Medical</option>
+                <option value="Family">Family</option>
+                <option value="Emergency">Emergency</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="leaveFromDate" class="form-label">From Date <span class="required">*</span></label>
+                <input type="date" id="leaveFromDate" name="leave_from" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label for="leaveToDate" class="form-label">To Date <span class="required">*</span></label>
+                <input type="date" id="leaveToDate" name="leave_to" class="form-control" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="leaveReason" class="form-label">Reason for Leave <span class="required">*</span></label>
+              <textarea id="leaveReason" name="leave_reason" class="form-control" rows="4"
+                        placeholder="Explain the purpose of your leave..." required></textarea>
+            </div>
+
+            <button type="submit" name="submit_leave" class="btn btn-primary btn-block" style="margin-top: 18px;">Submit Leave Application</button>
+
+            <div style="margin-top: 14px; padding: 10px; background-color: var(--bg-subtle); border-radius: var(--radius-sm); font-size: 12px; color: var(--text-muted);">
+              <strong>Note:</strong> Leave applications must be submitted at least 24 hours prior.
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </main>
+

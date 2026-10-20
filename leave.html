@@ -1,0 +1,149 @@
+
+        <main class="main-content">
+
+            <header class="top-nav">
+                <div class="welcome-text">
+                    <h1>Leave Records</h1>
+                    <p>Track student movement, upcoming absences, and return statuses.</p>
+                </div>
+                <div class="user-profile">
+                    <div class="avatar-group">
+                        <div class="avatar"></div>
+                        <span class="profile-name"><?php echo h($_SESSION['name']); ?></span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="icon-wrap purple"><i class="fa-solid fa-clipboard-list"></i></div>
+                    <div class="stat-info"><p>Total Leaves</p><h4><?php echo $totalLeaves; ?></h4></div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon-wrap orange"><i class="fa-solid fa-plane-departure"></i></div>
+                    <div class="stat-info"><p>Upcoming Leaves</p><h4><?php echo $upcoming; ?></h4></div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon-wrap blue"><i class="fa-solid fa-suitcase-rolling"></i></div>
+                    <div class="stat-info"><p>On Leave Today</p><h4><?php echo $onLeaveToday; ?></h4></div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon-wrap green"><i class="fa-solid fa-house-circle-check"></i></div>
+                    <div class="stat-info"><p>Returned</p><h4><?php echo $returned; ?></h4></div>
+                </div>
+            </div>
+
+            <div class="card table-card">
+                <div class="card-header"><h3>Student Leave Records</h3></div>
+
+                <div class="filter-bar">
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="leaveSearch" placeholder="Search Student Name, ID or Room...">
+                    </div>
+                    <select class="filter-dropdown" id="statusFilter">
+                        <option value="all">All Statuses</option>
+                        <option value="upcoming">Upcoming</option>
+                        <option value="on-leave">On Leave</option>
+                        <option value="returned">Returned</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                    <input type="date" class="filter-date" id="dateFilter">
+                </div>
+
+                <div class="table-responsive">
+                    <table class="data-table" id="leaveTable">
+                        <thead><tr><th>Student</th><th>ID</th><th>Room</th><th>From</th><th>To</th><th>Status</th><th>Action</th></tr></thead>
+                        <tbody>
+                            <?php foreach ($leaves as $l): ?>
+                                <?php $status = leaveStatus($l['from_date'], $l['to_date'], $l['cancelled']); $statusSlug = slug($status); ?>
+                                <tr data-status="<?php echo $statusSlug; ?>" data-date="<?php echo $l['from_date']; ?>">
+                                    <td><div class="user-cell"><div class="tiny-avatar"><?php echo h(strtoupper($l['name'][0])); ?></div><span><?php echo h($l['name']); ?></span></div></td>
+                                    <td><strong><?php echo h($l['roll_no']); ?></strong></td>
+                                    <td><?php echo h($l['room_number'] ?? '-'); ?></td>
+                                    <td><?php echo niceDate($l['from_date']); ?></td>
+                                    <td><?php echo niceDate($l['to_date']); ?></td>
+                                    <td><span class="status-badge <?php echo $statusSlug; ?>"><?php echo h($status); ?></span></td>
+                                    <td>
+                                        <button class="view-btn open-modal-btn"
+                                            data-student-id="<?php echo $l['student_id']; ?>"
+                                            data-name="<?php echo h($l['name']); ?>"
+                                            data-roll="<?php echo h($l['roll_no']); ?>"
+                                            data-room="<?php echo h($l['room_number'] ?? '-'); ?>"
+                                            data-type="<?php echo h($l['leave_type']); ?>"
+                                            data-from="<?php echo h(niceDate($l['from_date'])); ?>"
+                                            data-to="<?php echo h(niceDate($l['to_date'])); ?>"
+                                            data-days="<?php echo (strtotime($l['to_date']) - strtotime($l['from_date'])) / 86400 + 1; ?>"
+                                            data-reason="<?php echo h($l['reason']); ?>"
+                                            data-status="<?php echo $statusSlug; ?>"
+                                            data-status-label="<?php echo h($status); ?>">View Details</button>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+
+    <!-- LEAVE DETAILS & HISTORY MODAL -->
+    <div class="modal-overlay" id="leaveDetailsModal">
+        <div class="modal-box large">
+            <button class="close-modal-btn"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-header"><h2>Leave Details</h2></div>
+
+            <div class="modal-body profile-view">
+                <div class="leave-info-grid">
+                    <div class="info-block">
+                        <h4>Student Information</h4>
+                        <p><strong>Name:</strong> <span id="ld-name"></span></p>
+                        <p><strong>ID:</strong> <span id="ld-roll"></span></p>
+                        <p><strong>Room:</strong> <span id="ld-room"></span></p>
+                    </div>
+                    <div class="info-block">
+                        <h4>Leave Information</h4>
+                        <p><strong>Type:</strong> <span id="ld-type"></span></p>
+                        <p><strong>From:</strong> <span id="ld-from"></span></p>
+                        <p><strong>To:</strong> <span id="ld-to"></span></p>
+                        <p><strong>Duration:</strong> <span id="ld-days"></span> Day(s)</p>
+                    </div>
+                </div>
+
+                <div class="reason-block">
+                    <h4>Reason for Leave</h4>
+                    <p class="desc-text" id="ld-reason"></p>
+                </div>
+
+                <div class="status-block">
+                    <strong>Current Status:</strong> <span class="status-badge" id="ld-statusBadge"></span>
+                </div>
+
+                <hr class="divider">
+
+                <div class="history-section">
+                    <h4 id="ld-historyTitle">Leave History</h4>
+                    <p class="history-meta" id="ld-historyMeta"></p>
+                    <table class="history-table">
+                        <thead><tr><th>From</th><th>To</th><th>Type</th><th>Status</th></tr></thead>
+                        <tbody id="ld-historyBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- NO APPROVE/REJECT BUTTONS -->
+            <div class="modal-actions">
+                <button type="button" class="cancel-btn close-modal-btn-secondary">Close Window</button>
+            </div>
+        </div>
+    </div>
+
+<?php include "includes/footer_admin.php"; ?>
+    <script>
+        // Every leave record for every student, so the modal's "Leave History"
+        // section can show past requests without a separate page load.
+        const leaveHistory = <?php echo json_encode($leaveHistory); ?>;
+    </script>
+    <script src="js/leave.js"></script>
+</body>
+</html>
