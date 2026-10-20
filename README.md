@@ -62,7 +62,7 @@ Originally rebuilt from a static HTML/CSS frontend into a working PHP + MySQL ap
 
 ### 1. Download / Clone
 ```bash
-git clone https://github.com/kashishrangwani/Hostel_management_system.git
+git clone https://github.com/kashishrangwani/Hostel-management-system.git
 ```
 Or extract the project ZIP into your web root.
 
