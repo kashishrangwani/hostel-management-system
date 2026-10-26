@@ -136,6 +136,6 @@
         const courseCounts = <?php echo json_encode(array_map('intval', array_column($courseData, 'c'))); ?>;
         const feesData = { paid: <?php echo (float) $paidTotal; ?>, due: <?php echo (float) $dueTotal; ?> };
     </script>
-    <script src="js/admin_dashboard.js"></script>
+    <script src="admin_dashboard.js"></script>
 </body>
 </html>
